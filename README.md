@@ -6,6 +6,8 @@
 > 本项目是我自己当宣传委员时为了交打卡表写的，界面是让 DSH 帮忙加的。
 > 纯本地运行，截图和生成的文档都只留在你自己电脑上，不联网上传。
 
+📦 **下载**：[Releases](https://github.com/yyyan44/yijian-daka/releases/latest) 里有打包好的 zip，解压后双击 `一键打卡.pyw` 即可（本机仍需有 Python 3 + PySide6）。
+
 ![界面预览](docs/界面预览.png)
 
 ## 它能做什么
