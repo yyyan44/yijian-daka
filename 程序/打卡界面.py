@@ -549,7 +549,7 @@ class MainWindow(QMainWindow):
         self._act(m_file, "打开聊天记录截图文件夹", None, lambda: open_in_explorer(HERE / str(self.cfg["chat_dir"])))
         self._act(m_file, "打开日期截图文件夹", None, lambda: open_in_explorer(HERE / str(self.cfg["date_dir"])))
         m_file.addSeparator()
-        self._act(m_file, "打开输出文件夹", None, lambda: open_in_explorer(HERE))
+        self._act(m_file, "打开输出文件夹", None, lambda: open_in_explorer(core.out_dir(HERE, self.cfg)))
         m_file.addSeparator()
         self._act(m_file, "退出", "Ctrl+Q", self.close)
 
@@ -681,7 +681,7 @@ class MainWindow(QMainWindow):
 
         self.btn_gen.clicked.connect(self.generate)
         self.btn_open_out.clicked.connect(lambda: open_file(self.last_out) if self.last_out else None)
-        self.btn_open_dir.clicked.connect(lambda: open_in_explorer(HERE))
+        self.btn_open_dir.clicked.connect(lambda: open_in_explorer(core.out_dir(HERE, self.cfg)))
         return box
 
     # ── 小操作 ──────────────────────────────────────────
@@ -888,7 +888,7 @@ class MainWindow(QMainWindow):
                 return
         if not dates:
             self.log_line("[提示] 备用格是空的，表格里那几格会留白。")
-        out = core.out_path(week, self.cfg.get("class_name", ""), HERE)
+        out = core.out_path(week, self.cfg.get("class_name", ""), HERE, self.cfg)
         if out.exists():
             r = QMessageBox.question(self, "已存在", f"{out.name} 已经存在，覆盖它吗？")
             if r != QMessageBox.StandardButton.Yes:

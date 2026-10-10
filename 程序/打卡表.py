@@ -106,12 +106,14 @@ def main() -> int:
         return 0
 
     start, end = core.week_range(week, cfg)
-    out = Path(arg_value("--out") or core.out_path(week, str(cfg["class_name"]), HERE))
+    out_arg = arg_value("--out")
+    out = Path(out_arg) if out_arg else core.out_path(week, str(cfg["class_name"]), HERE, cfg)
     if not out.is_absolute():
-        out = HERE / out
+        out = core.out_dir(HERE, cfg) / out
     print(f"本次周期：{start:%m/%d}（周六） ~ {end:%m/%d}（周五）")
     print(f"聊天记录截图目录：{chat_dir}")
     print(f"日期截图目录：    {date_dir}")
+    print(f"生成的 Word 放：  {core.out_dir(HERE, cfg)}")
     print()
 
     res = core.build_from_plan(

@@ -41,6 +41,7 @@ DEFAULTS: dict = {
     "chat_dir": "聊天记录截图",            # 按星期几归位的那批
     "date_dir": "日期截图",               # 塞进「备用格」的那批
     "clip_dir": "剪贴板截图",              # 界面里 Ctrl+V 粘贴的图存这里
+    "out_dir": "生成的打卡表",              # 生成好的 Word 放哪个子文件夹
 }
 # ═══════════════════════════════════════════════════════════
 
@@ -559,9 +560,22 @@ def build_from_plan(week: int, out: Path, here: Path | None = None, cfg: dict | 
                  cfg, log)
 
 
-def out_path(week: int, cls: str, here: Path | None = None) -> Path:
+def out_dir(here: Path | None = None, cfg: dict | None = None) -> Path:
+    """生成的 Word 放哪个文件夹（默认数据目录下的「生成的打卡表」）。"""
+    cfg = cfg or load_config()
+    name = str(cfg.get("out_dir") or DEFAULTS["out_dir"]).strip() or DEFAULTS["out_dir"]
+    d = Path(here or DATA) / name
+    try:
+        d.mkdir(parents=True, exist_ok=True)
+    except Exception:
+        pass
+    return d
+
+
+def out_path(week: int, cls: str, here: Path | None = None,
+             cfg: dict | None = None) -> Path:
     safe = re.sub(r'[\\/:*?"<>|]', "", str(cls or "打卡表")).strip() or "打卡表"
-    return Path(here or DATA) / f"{safe}第{cn_num(week)}周打卡.docx"
+    return out_dir(here, cfg) / f"{safe}第{cn_num(week)}周打卡.docx"
 
 
 if __name__ == "__main__":
