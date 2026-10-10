@@ -35,8 +35,8 @@ STATE_FILE = "打卡安排.json"
 DEFAULTS: dict = {
     "first_week_monday": "2026-08-31",   # 第 1 周里的那个周一（第1周 = 8/29 周六 ~ 9/4 周五）
     "cycle_start_weekday": 6,            # 一个周期从星期几起算：1=周一 … 6=周六 … 7=周日
-    "class_name": "XX班",             # 班级
-    "student_name": "张三",             # 姓名
+    "class_name": "XX班",                 # 班级（第一次用请在界面上填自己的，会记住）
+    "student_name": "张三",               # 姓名（同上）
     "template_file": "打卡表模板.docx",    # 模板文件名
     "chat_dir": "聊天记录截图",            # 按星期几归位的那批
     "date_dir": "日期截图",               # 塞进「备用格」的那批
