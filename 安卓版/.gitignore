@@ -1,0 +1,10 @@
+# 构建产物
+build/
+.gradle/
+*.apk
+*.aab
+
+# 本机路径与签名（不进版本库）
+local.properties
+*.keystore
+*.jks

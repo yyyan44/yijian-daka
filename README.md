@@ -8,6 +8,8 @@
 
 📦 **下载**：[Releases](https://github.com/yyyan44/yijian-daka/releases/latest) 里有打包好的 zip，解压后双击 `一键打卡.pyw` 即可（本机仍需有 Python 3 + PySide6）。
 
+📱 **手机版**：同一个 Release 页里还有安卓 App（`yijian-daka-android-*.apk`，Android 8.0+，**不联网**，本地生成 docx）。源码在 [`安卓版/`](安卓版/)，详见 [安卓版说明](安卓版/README.md)。
+
 ![界面预览](docs/界面预览.png)
 
 ## 它能做什么
@@ -97,6 +99,21 @@ Windows 快捷方式里存的是绝对路径，文件夹一搬就会失效。所
 
 **同一天有好几张图怎么办？**
 直接都拖进同一个格子，程序会自动平分高度塞进去。
+
+## 📱 安卓版
+
+同一个功能搬到了手机上：**选本机截图 → 按星期几归位 → 本地生成 Word → 存到手机 / 分享到微信**。
+不用电脑、不用联网、不用装 Office。
+
+<img src="安卓版/docs/界面_归位.png" width="240"> <img src="安卓版/docs/界面_生成完成.png" width="240">
+
+跟电脑版的一个关键差别：手机版**不按截图日期猜周次**，只按"星期几"归位，周次由你自己用 `◀ ▶` 定（默认本周，只影响表头日期）。
+因为实际交打卡时经常是"这周的记录下个周末才补"，按日期猜反而会把图拦下来。
+
+- 源码与构建说明：[`安卓版/`](安卓版/)（WebView 壳 + 网页界面，手写 OOXML 生成 docx，零第三方依赖）
+- APK：[Releases](https://github.com/yyyan44/yijian-daka/releases) 里的 `yijian-daka-android-*.apk`
+- 隐私：**清单里没有 `INTERNET` 权限**，装完在「应用信息 → 权限」里显示「未请求任何权限」
+- 限制：现在是 debug 签名（自用/试用可以，不适合正式发布）、暂不支持换模板、预览不能缩放
 
 ## 贡献者
 

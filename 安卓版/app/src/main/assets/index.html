@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>一键打卡</title>
+<style>
+  :root { --blue:#2f6fd0; --bg:#f2f5f9; --card:#fff; --line:#dbe1e9; --hint:#6b7684; --ok:#2f7d3a; --warn:#b8791a; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { margin:0; padding:12px 12px 96px; background:var(--bg); color:#22303f;
+         font-family:-apple-system,"Noto Sans SC","Microsoft YaHei",sans-serif; font-size:15px; }
+  h1 { font-size:19px; margin:4px 0 2px; }
+  .sub { color:var(--hint); font-size:13px; margin-bottom:12px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px; margin-bottom:10px; }
+  .row { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .title { font-weight:600; }
+  .title .date { color:var(--hint); font-weight:400; font-size:13px; margin-left:6px; }
+  .chip { font-size:12px; border-radius:10px; padding:2px 8px; white-space:nowrap; }
+  .chip.ok { color:var(--ok); background:#eaf6ec; }
+  .chip.warn { color:var(--warn); background:#fdf3e0; }
+  .chip.idle { color:var(--hint); background:#eef1f5; }
+  .thumbs { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+  .thumb { position:relative; width:64px; height:64px; border-radius:10px; overflow:hidden; border:1px solid var(--line); }
+  .thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+  .thumb .x { position:absolute; top:0; right:0; width:22px; height:22px; line-height:20px; text-align:center;
+              background:rgba(0,0,0,.55); color:#fff; font-size:15px; border-bottom-left-radius:8px; }
+  #progressBox { display:none; margin-bottom:10px; }
+  #progressTrack { height:8px; background:#e3e9f1; border-radius:6px; overflow:hidden; }
+  #progressBar { height:100%; width:0; background:var(--blue); transition:width .2s; }
+  #progressText { font-size:12px; color:var(--hint); margin-top:4px; }
+  .hint { color:var(--hint); font-size:13px; padding:6px 2px; }
+  .day.empty { border-style:dashed; border-color:#e3c07a; background:#fffdf7; }
+  .tray.filled { border-color:#bcd3b6; }
+  button { font:inherit; border:0; border-radius:12px; }
+  #pickBtn { width:100%; padding:16px; font-size:17px; font-weight:700; color:#fff; background:var(--blue); margin-bottom:10px; }
+  #pickBtn:active { background:#3a7fe0; }
+  .weekbar { display:flex; align-items:center; gap:8px; background:var(--card); border:1px solid var(--line);
+             border-radius:14px; padding:10px 12px; margin-bottom:10px; }
+  .weekbar .w { font-weight:700; font-size:16px; }
+  .weekbar .r { color:var(--hint); font-size:12px; }
+  .wk { width:34px; height:34px; background:#eef2f8; color:#33465c; font-size:16px; }
+  #summary { color:var(--hint); font-size:13px; margin:2px 2px 10px; }
+  #log { background:#fffbe9; border:1px solid #f0e0a8; border-radius:12px; padding:10px 12px;
+         font-size:13px; color:#6a5a1e; margin-bottom:10px; white-space:pre-wrap; display:none; }
+  .bottom { position:fixed; left:0; right:0; bottom:0; background:rgba(242,245,249,.96);
+            border-top:1px solid var(--line); padding:10px 12px calc(10px + env(safe-area-inset-bottom)); }
+  #genBtn { width:100%; padding:16px; font-size:17px; font-weight:700; color:#fff; background:var(--blue); }
+  #genBtn:disabled { background:#a9bcd8; }
+  #result { display:none; background:#eaf6ec; border:1px solid #bcd9c0; border-radius:12px; padding:10px 12px; margin-bottom:10px; }
+  #resultText { font-size:13px; color:#255c2c; white-space:pre-wrap; margin-bottom:8px; }
+  .acts { display:flex; gap:8px; }
+  .acts button { flex:1; padding:12px; font-weight:600; color:#fff; background:var(--blue); }
+  .acts button.ghost { background:#fff; color:var(--blue); border:1px solid var(--blue); }
+  #settings { display:none; }
+  #settings label { display:block; margin:8px 0 4px; font-size:13px; color:var(--hint); }
+  #settings input { width:100%; padding:10px; border:1px solid var(--line); border-radius:10px; font:inherit; background:#fbfcfe; }
+  .linkish { color:var(--blue); font-size:14px; }
+  #preview { display:none; position:fixed; inset:0; background:rgba(0,0,0,.88); z-index:99;
+             align-items:center; justify-content:center; padding:16px; }
+  #preview img { max-width:100%; max-height:100%; border-radius:8px; }
+</style>
+</head>
+<body>
+  <h1>一键打卡</h1>
+  <div class="sub">选本机截图 → 自动按星期几归位 → 本地生成 Word（不联网、不上传）</div>
+
+  <div class="weekbar">
+    <button class="wk" id="prevWeek">◀</button>
+    <div style="flex:1">
+      <div class="w" id="weekText">还没定周次</div>
+      <div class="r" id="weekRange">用 ◀ ▶ 选周次（只决定表头日期）</div>
+    </div>
+    <button class="wk" id="nextWeek">▶</button>
+  </div>
+
+  <button id="pickBtn">选择本周截图（可多选）</button>
+  <div id="summary"></div>
+  <div id="progressBox">
+    <div id="progressTrack"><div id="progressBar"></div></div>
+    <div id="progressText"></div>
+  </div>
+  <div id="log"></div>
+
+  <div id="result">
+    <div id="resultText"></div>
+    <div class="acts">
+      <button id="openBtn">打开看看</button>
+      <button id="saveBtn" class="ghost">存到手机</button>
+    </div>
+    <div class="acts" style="margin-top:8px">
+      <button id="shareBtn" class="ghost">分享到微信 / QQ</button>
+    </div>
+  </div>
+
+  <div id="days"></div>
+  <div id="trays"></div>
+
+  <div class="card">
+    <div class="row">
+      <div class="title">设置</div>
+      <span class="linkish" id="settingsToggle">展开 / 收起</span>
+    </div>
+    <div id="settings">
+      <label>班级（会填进表格）</label>
+      <input id="inClass" placeholder="例如 XX班">
+      <label>姓名</label>
+      <input id="inName" placeholder="例如 张三">
+      <label>第 1 周里的那个周一</label>
+      <input id="inMonday" type="date">
+      <label>一个周期从星期几起算（1=周一 … 6=周六）</label>
+      <input id="inCycle" type="number" min="1" max="7" value="6">
+      <div class="hint" style="padding:6px 0 0">提示：图上的 × 是删除；长按某一天的卡片可以清空那一天重新选。</div>
+      <div style="margin-top:10px"><span class="linkish" id="clearBtn">清空所有已选的图</span></div>
+    </div>
+  </div>
+
+  <div class="bottom">
+    <button id="genBtn" disabled>生成 Word 打卡表</button>
+  </div>
+
+  <input id="fileInput" type="file" accept="image/*" multiple style="display:none">
+  <div id="preview"><img id="bigImg" alt="预览"></div>
+
+  <script src="core.js"></script>
+  <script src="template.js"></script>
+  <script src="docx.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
