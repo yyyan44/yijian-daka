@@ -304,6 +304,11 @@
   // ───────── 生成 ─────────
   function generate() {
     if (state.busy) return;
+    if (!window.TEMPLATE) {
+      log('这一版没有模板数据。请在电脑上把你们学院的打卡表模板放进工程根目录，' +
+          '运行 安卓版/tools/extract_template.py 生成 assets/template.js，再重新打包。');
+      return;
+    }
     if (!state.cfg.className || !state.cfg.studentName) {       // #5
       $('settings').style.display = 'block';
       log('生成前请先在下面填好「班级」和「姓名」——表格里要用。');

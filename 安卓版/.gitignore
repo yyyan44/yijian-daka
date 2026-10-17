@@ -8,3 +8,7 @@ build/
 local.properties
 *.keystore
 *.jks
+
+# 模板数据由 tools/extract_template.py 从 打卡表模板.docx 生成。
+# 模板里有院系/班级信息，所以不进仓库；本地跑一次脚本就有了（缺它时 App 会提示）。
+app/src/main/assets/template.js

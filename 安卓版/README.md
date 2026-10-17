@@ -21,24 +21,30 @@
 
 ## 安装
 
-到 [Releases](https://github.com/yyyan44/yijian-daka/releases) 下载 `yijian-daka-android-*.apk`，手机上点开安装（需要允许"安装未知来源应用"）。
+**本仓库不提供预编译的 APK**，因为生成打卡表需要模板，而模板（学院发的表格）会整份打进 APK 里 ——
+那等于把模板公开出去，所以 `assets/template.js` 和 APK 都不进仓库。请按下面「自己构建」打包，用你自己的模板。
 
 要求 **Android 8.0（API 26）及以上**。Android 10 以下的机器会把文档存进 App 私有目录、不支持直接分享。
 
-> ⚠️ 现在仓库里发布的 APK 是 **debug 签名**（证书 `CN=Android Debug`），自己用、发给同学试用都没问题，
-> 但不适合当正式发布版；换成 release 签名后必须**先卸载再装**。详见下面「签名」。
+> ⚠️ 用 debug 签名自己装没问题；要正式发布请换成 release 签名，且换签名后必须**先卸载再装**。详见文末「签名」。
 
 ## 自己构建
 
 ```bat
-:: 一次性：生成 debug 用 keystore（本仓库不提交 keystore）
+:: 0) 把你们学院的模板命名为 打卡表模板.docx 放到仓库根目录（就是 一键打卡.pyw 旁边）
+python tools\extract_template.py
+
+:: 1) 一次性：生成 debug 用 keystore（本仓库不提交 keystore）
 keytool -genkeypair -v -keystore daka-debug.keystore -storepass android -keypass android ^
         -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10950 ^
         -dname "CN=Android Debug,O=Android,C=US"
 
-:: 然后每次构建
+:: 2) 然后每次构建
 构建.bat
 ```
+
+第 0 步生成 `app/src/main/assets/template.js`（模板的 OOXML 部件，209 KB 左右），它已在 `.gitignore` 里；
+缺了它 App 能打开但会提示「没有模板数据」，不会崩。
 
 产物：`app\build\outputs\apk\debug\app-debug.apk`（同时会复制一份成 `一键打卡_验证版.apk`）。
 
@@ -58,7 +64,7 @@ keytool -genkeypair -v -keystore daka-debug.keystore -storepass android -keypass
 │  ├─ app.js          交互：选图 / 归位 / 周次 / 持久化（IndexedDB）/ 进度
 │  ├─ core.js         周次与归位算法（node 可单测）—— 电脑版 打卡核心.py 的 JS 移植
 │  ├─ docx.js         手写 zip + OOXML：把图塞进模板、改班级姓名、直接吐 Blob
-│  └─ template.js     由 tools/extract_template.py 从 打卡表模板.docx 生成（221 个部件）
+│  └─ template.js     由 tools/extract_template.py 生成（含模板的 221 个部件；不进仓库，模板自备）
 ├─ tools/
 │  ├─ extract_template.py   模板 docx → assets/template.js
 │  ├─ make_icons.py         ico → 各密度 mipmap（含自适应图标）
